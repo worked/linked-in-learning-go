@@ -2,13 +2,11 @@ package main
 
 import (
 	"fmt"
-	"strings"
 )
 
 // EMPLOYEE
 type Employee interface {
-	DoWork(name string)
-	GetName() string
+	DoWork()
 }
 
 type Manager struct {
@@ -19,30 +17,19 @@ type Engineer struct {
 	Name string
 }
 
-func (m Manager) DoWork(name string) {
-	fmt.Printf("Manager %v is doing work\n", name)
+func (m Manager) DoWork() {
+	fmt.Printf("Manager %v is doing work\n", m.Name)
 }
 
-func (e Engineer) DoWork(name string) {
-	fmt.Printf("Engineer %v is doing work\n", name)
-}
-
-func (m Manager) GetName() string {
-	return m.Name
-}
-
-func (e Engineer) GetName() string {
-	return e.Name
+func (e Engineer) DoWork() {
+	fmt.Printf("Engineer %v is doing work\n", e.Name)
 }
 
 // PAYROLL
 type Payroll struct{}
 
-func (p Payroll) CalculatePay(employee Employee) {
-	employeeType := fmt.Sprintf("%T", employee)
-	// Remove package prefix (e.g., "main.Manager" -> "Manager")
-	typeName := strings.TrimPrefix(employeeType, "main.")
-	fmt.Printf("Calculating pay for %v the %v\n", employee.GetName(), typeName)
+func (p Payroll) CalculatePayFor(name string) {
+	fmt.Printf("Calculating pay for %v\n", name)
 }
 
 func main() {
@@ -55,11 +42,16 @@ func main() {
 		manager,
 		engineer,
 	}
-	for _, employee := range employees {
-		employee.DoWork(employee.GetName())
-	}
 
 	payroll := Payroll{}
-	payroll.CalculatePay(manager)
-	payroll.CalculatePay(engineer)
+
+	for _, employee := range employees {
+		employee.DoWork()
+		switch employee.(type) {
+		case Manager:
+			payroll.CalculatePayFor(manager.Name)
+		case Engineer:
+			payroll.CalculatePayFor(engineer.Name)
+		}
+	}
 }
